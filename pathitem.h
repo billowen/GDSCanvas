@@ -31,9 +31,10 @@ namespace CANVAS
 		PathItem(GDS::Path* data);
 		virtual ~PathItem();
 
-		QRectF boundingRect() const;
-		void paint(QPainter* painter,
-			QStyleOptionGraphicsItem* option,
+		virtual QRectF boundingRect() const;
+        virtual QPainterPath shape() const;
+		virtual void paint(QPainter* painter,
+			const QStyleOptionGraphicsItem* option,
 			QWidget* widget = 0);
 	};
 }

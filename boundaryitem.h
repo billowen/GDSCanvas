@@ -33,8 +33,9 @@ namespace CANVAS
 		GDS::Boundary* Data;
 	public:
 		BoundaryItem(GDS::Boundary* Data);
+        virtual ~BoundaryItem();
 
-		QRectF boundingRect() const;
+		virtual QRectF boundingRect() const;
 		virtual void paint(QPainter* painter,
 			const QStyleOptionGraphicsItem* option,
 			QWidget* widget = 0);

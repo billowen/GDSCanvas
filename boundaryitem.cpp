@@ -21,10 +21,6 @@
 
 #include <assert.h>
 #include <QPainter>
-#include <QBrush>
-#include <QPixmap>
-#include <QBitmap>
-#include <QImage>
 #include <QStyleOptionGraphicsItem>
 #include "boundaryitem.h"
 #include "GDS/techfile.h"
@@ -38,6 +34,9 @@ namespace CANVAS
 		Data = data;
 		setFlags(ItemIsSelectable);
 	}
+
+    BoundaryItem::~BoundaryItem()
+    {}
 
 	QRectF BoundaryItem::boundingRect() const
 	{

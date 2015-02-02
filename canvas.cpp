@@ -3,6 +3,7 @@
 #include "boundaryitem.h"
 #include "GDS/elements.h"
 #include "GDS/boundary.h"
+#include "pathitem.h"
 
 namespace CANVAS
 {
@@ -39,13 +40,16 @@ namespace CANVAS
 				GDS::Element* e = Cell->get(i);
 				if (e == nullptr)
 					continue;
-				if (e->tag() != GDS::BOUNDARY)
-					continue;
 				if (GDS::Boundary* node = dynamic_cast<GDS::Boundary*>(e))
 				{
 					BoundaryItem* item = new BoundaryItem(node);
 					addItem(item);
 				}
+                else if (GDS::Path* node = dynamic_cast<GDS::Path*>(e))
+                {
+                    PathItem* item = new PathItem(node);
+                    addItem(item);
+                }
 			}
 		}
 		
