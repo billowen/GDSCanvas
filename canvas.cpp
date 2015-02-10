@@ -26,7 +26,7 @@ namespace CANVAS
 			return;
 
 		int x1, x2, y1, y2;
-		if (Cell->boundaryRect(x1, y1, x2, y2))
+        if (Cell->boundingRect(x1, y1, x2, y2))
 		{
 			int width = (x2 - x1) * 1.2;
 			int height = (y2 - y1) * 1.2;

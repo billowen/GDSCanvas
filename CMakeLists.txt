@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.11)
 add_definitions(-std=c++11)
 
 project (GDSCanvas)
@@ -7,6 +7,8 @@ set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
 
 find_package(Qt5Widgets)
+find_package(Qt5Gui)
+include_directories(${Qt5Widgets_INCLUDES})
 add_executable(example main.cpp)
 add_library(GDSCanvas
 	canvas.cpp canvas.h
@@ -15,6 +17,6 @@ add_library(GDSCanvas
 	)
 add_subdirectory(GDS)
 target_link_libraries(GDSCanvas libGDS)
-target_link_libraries(GDSCanvas Qt5::Widgets)
-target_link_libraries(example Qt5::Widgets)
+target_link_libraries(GDSCanvas Qt5::Widgets Qt5::Gui)
+target_link_libraries(example Qt5::Widgets Qt5::Gui)
 target_link_libraries(example GDSCanvas)

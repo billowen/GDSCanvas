@@ -41,7 +41,7 @@ namespace CANVAS
 	QRectF BoundaryItem::boundingRect() const
 	{
 		int x1, y1, x2, y2;
-		if (Data->boundaryRect(x1, y1, x2, y2))
+        if (Data->boundingRect(x1, y1, x2, y2))
 		{
 			return QRectF(x1, y1, x2 - x1, y2 - y1);
 		}
