@@ -13,6 +13,7 @@ set (headers
     boundaryitem.h 
     pathitem.h 
     srefitem.h
+    arefitem.h 
     gadgets.h
     )
 set (src 
@@ -20,6 +21,7 @@ set (src
     boundaryitem.cpp
     pathitem.cpp
     srefitem.cpp
+    arefitem.cpp
     gadgets.cpp
     )
 

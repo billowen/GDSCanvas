@@ -1,6 +1,6 @@
 /*
- * This file is a part of GDSCanvas
- * srefitem.h -- A header file which declare the sref item for GDSCanvas.
+ * This file is a part of GDSCanvas.
+ * arefitem.h -- A header file which declare aref item of GDSCanvas.
  *
  * Copyright (c) 2015 Kangpeng Shao <billowen035@gmail.com>
  *
@@ -17,20 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with GDSII. If not, see <http://www.gnu.org/licenses/>.
  **/
-
-#ifndef CANVASSREFITEM_H
-#define CANVASSREFITEM_H
-
 #include <QGraphicsItem>
-#include "GDS/sref.h"
+#include "GDS/aref.h"
 
 namespace CANVAS
 {
-	class SRefItem : public QGraphicsItem
+	class ARefItem : public QGraphicsItem
 	{
 	public:
-		SRefItem(GDS::SRef* data, QGraphicsItem* parent = 0);
-		virtual ~SRefItem();
+		ARefItem(GDS::ARef* data, QGraphicsItem* parent = 0);
+		virtual ~ARefItem();
 
 		virtual QRectF boundingRect() const;
 		virtual QPainterPath shape() const;
@@ -40,14 +36,10 @@ namespace CANVAS
 
 		int viewLevel() const;
 		void setViewLevel(int level);
+
 	private:
-		GDS::SRef* m_Data;
+		GDS::ARef* m_Data;
 		int m_ViewLevel;
 	};
 
 }
-
-
-
-#endif // !CANVASSREFITEM_H
-
