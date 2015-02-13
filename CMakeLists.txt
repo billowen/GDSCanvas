@@ -6,17 +6,22 @@ project (GDSCanvas)
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_AUTOMOC ON)
 
+set (headers
+    canvas.h
+    boundaryitem.h 
+    pathitem.h 
+    )
+set (src 
+    canvas.cpp
+    boundaryitem.cpp
+    pathitem.cpp
+    )
+
 find_package(Qt5Widgets)
 find_package(Qt5Gui)
-include_directories(${Qt5Widgets_INCLUDES})
-add_executable(example main.cpp)
-add_library(GDSCanvas
-	canvas.cpp canvas.h
-	boundaryitem.cpp boundaryitem.h
-	pathitem.cpp pathitem.h
-	)
-add_subdirectory(GDS)
-target_link_libraries(GDSCanvas libGDS)
-target_link_libraries(GDSCanvas Qt5::Widgets Qt5::Gui)
-target_link_libraries(example Qt5::Widgets Qt5::Gui)
-target_link_libraries(example GDSCanvas)
+add_executable(testGDSCanvas main.cpp)
+add_library(libGDSCanvas ${src} ${headers})
+target_link_libraries(libGDSCanvas libGDS)
+target_link_libraries(libGDSCanvas Qt5::Widgets Qt5::Gui)
+target_link_libraries(testGDSCanvas Qt5::Widgets Qt5::Gui)
+target_link_libraries(testGDSCanvas libGDSCanvas)
