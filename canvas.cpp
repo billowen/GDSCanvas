@@ -3,6 +3,7 @@
 #include "boundaryitem.h"
 #include "GDS/elements.h"
 #include "GDS/boundary.h"
+#include "GDSGadgets/boundingrect.h"
 #include "pathitem.h"
 
 namespace CANVAS
@@ -10,7 +11,7 @@ namespace CANVAS
 	Canvas::Canvas(GDS::Structure *cell, QObject *parent)
 		: QGraphicsScene(parent)
 	{
-		Cell = cell;
+		m_Cell = cell;
 		refresh();
 	}
 
@@ -21,23 +22,24 @@ namespace CANVAS
 
 	void Canvas::refresh()
 	{
-		assert(Cell != nullptr);
-		if (Cell == nullptr)
+		assert(m_Cell != nullptr);
+		if (m_Cell == nullptr)
 			return;
 
-		int x1, x2, y1, y2;
-        if (Cell->boundingRect(x1, y1, x2, y2))
+		int x, y;
+		int c_width, c_height;
+        if (GDS::boundingRect(m_Cell, x, y, c_width, c_height))
 		{
-			int width = (x2 - x1) * 1.2;
-			int height = (y2 - y1) * 1.2;
+			int scene_width = c_width * 1.2;
+			int scene_height = c_height * 1.2;
 
-			int orgin_x = (x1 + x2) / 2 - width / 2;
-			int orgin_y = (y1 + y2) / 2 - height / 2;
-			setSceneRect(orgin_x, orgin_y, width, height);
+			int orgin_x = x - (scene_width - c_width) / 2;
+			int orgin_y = y - (scene_height - c_height) / 2;
+			setSceneRect(orgin_x, orgin_y, scene_width, scene_height);
 
-			for (size_t i = 0; i < Cell->size(); i++)
+			for (size_t i = 0; i < m_Cell->size(); i++)
 			{
-				GDS::Element* e = Cell->get(i);
+				GDS::Element* e = m_Cell->get(i);
 				if (e == nullptr)
 					continue;
 				if (GDS::Boundary* node = dynamic_cast<GDS::Boundary*>(e))

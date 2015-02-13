@@ -1,7 +1,7 @@
 /*
-* This file is part of GDSII.
+* This file is part of GDSCanvas.
 *
-* boundaryitem.h -- The header file which declare the boundary item for GDS canvas.
+* gadgets.h -- The header file which declare the funtions for GDS canvas.
 *
 * Copyright (c) 2015 Kangpeng Shao <billowen035@gmail.com>
 *
@@ -18,31 +18,22 @@
 * You should have received a copy of the GNU General Public License
 * along with GDSII. If not, see <http://www.gnu.org/licenses/>.
 **/
+#ifndef CANVASGADGETS_H
+#define CANVASGADGETS_H
 
-
-#ifndef CANVASBOUNDARYITEM_H
-#define CANVASBOUNDARYITEM_H
-
-#include <QGraphicsItem>
-#include "GDS/boundary.h"
+class QPainter;
+class QStyleOptionGraphicsItem;
 
 namespace CANVAS
 {
 
-	class BoundaryItem : public QGraphicsItem
-	{
-		GDS::Boundary* m_Data;
-	public:
-		BoundaryItem(GDS::Boundary* data);
-        virtual ~BoundaryItem();
+	void initPen(QPainter* painter,
+		const QStyleOptionGraphicsItem* option,
+		int num, int data_type);
 
-		virtual QRectF boundingRect() const;
-		virtual QPainterPath shape() const;
-		virtual void paint(QPainter* painter,
-			const QStyleOptionGraphicsItem* option,
-			QWidget* widget = 0);
-	};
-
+	void initBrush(QPainter* painter,
+		int num, int data_type);
 }
 
-#endif
+#endif // !CANVASGADGETS_H
+

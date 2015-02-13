@@ -24,6 +24,8 @@
 #include <QStyleOptionGraphicsItem>
 #include "boundaryitem.h"
 #include "GDS/techfile.h"
+#include "GDSGadgets/boundingrect.h"
+#include "gadgets.h"
 
 namespace CANVAS
 {
@@ -31,7 +33,7 @@ namespace CANVAS
 		: QGraphicsItem()
 	{
 		assert(data != nullptr);
-		Data = data;
+		m_Data = data;
 		setFlags(ItemIsSelectable);
 	}
 
@@ -40,10 +42,11 @@ namespace CANVAS
 
 	QRectF BoundaryItem::boundingRect() const
 	{
-		int x1, y1, x2, y2;
-        if (Data->boundingRect(x1, y1, x2, y2))
+		int x, y;
+		int width, height;
+        if (GDS::boundingRect(m_Data, x, y, width, height))
 		{
-			return QRectF(x1, y1, x2 - x1, y2 - y1);
+			return QRectF(x, y, width, height);
 		}
 		else
 		{
@@ -51,50 +54,28 @@ namespace CANVAS
 		}
 	}
 
+	QPainterPath BoundaryItem::shape() const
+	{
+		std::vector<int> v_x, v_y;
+		m_Data->xy(v_x, v_y);
+		QPolygon polygon;
+		for (size_t i = 0; i < v_x.size() && i < v_y.size(); i++)
+		{
+			polygon << QPoint(v_x[i], v_y[i]);
+		}
+
+		QPainterPath path;
+		path.addPolygon(polygon);
+
+		return path;
+	}
+
 	void BoundaryItem::paint(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
 		QWidget* widget)
 	{
-		GDS::Techfile* techfile = GDS::Techfile::getInstance();
-		GDS::LayerNode layer;
-		bool flag = techfile->getLayer(Data->layer(), Data->dataType(), layer);
-		//assert(flag);
-		int r, g, b;
-		layer.color(r, g, b);
-		QColor co(r, g, b);
-
-		QPen pen(co);
-		if (option->state & QStyle::State_Selected)
-		{
-			pen.setStyle(Qt::DotLine);
-			pen.setWidth(2);
-		}
-		painter->setPen(pen);
-
-		QBrush brush;
-		std::string stipple_name = layer.stipple();
-		GDS::Stipple bits;
-		if (stipple_name != "" && techfile->getStipple(stipple_name, bits))
-		{
-			QImage img(bits.row(), bits.col(), QImage::Format_RGB888);
-			for (int i = 0; i < bits.row(); i++)
-			{
-				for (int j = 0; j < bits.col(); j++)
-				{
-					if (bits.bit(i, j))
-						img.setPixel(i, j, co.rgb());
-					else
-						img.setPixel(i, j, Qt::white);
-				}
-			}
-			QPixmap pix = QPixmap::fromImage(img);
-			brush.setTexture(pix);
-		}
-		else
-		{
-			brush.setStyle(Qt::NoBrush);
-		}
-		painter->setBrush(brush);
+		initPen(painter, option, m_Data->layer(), m_Data->dataType());
+		initBrush(painter, m_Data->layer(), m_Data->dataType());
 		
 		painter->drawRect(boundingRect());
 	}

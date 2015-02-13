@@ -1,5 +1,5 @@
 /*
-* This file is part of GDSII.
+* This file is part of GDSCanvas.
 *
 * pathitem.h -- The header file which declare the path item for GDS canvas.
 *
@@ -18,6 +18,10 @@
 * You should have received a copy of the GNU General Public License
 * along with GDSII. If not, see <http://www.gnu.org/licenses/>.
 **/
+
+#ifndef CANVASPATHITEM_H
+#define CANVASPATHITEM_H
+
 #include <QGraphicsItem>
 #include "GDS/path.h"
 
@@ -25,16 +29,20 @@ namespace CANVAS
 {
 	class PathItem : public QGraphicsItem
 	{
-		GDS::Path* Data;
+		GDS::Path* m_Data;
 
 	public:
 		PathItem(GDS::Path* data);
 		virtual ~PathItem();
 
 		virtual QRectF boundingRect() const;
-        virtual QPainterPath shape() const;
+		virtual QPainterPath shape() const;
 		virtual void paint(QPainter* painter,
 			const QStyleOptionGraphicsItem* option,
 			QWidget* widget = 0);
 	};
 }
+
+#endif // !CANVASPATHITEM_H
+
+

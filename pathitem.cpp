@@ -24,7 +24,9 @@
 #include <QStyleOptionGraphicsItem>
 #include "GDS/path.h"
 #include "GDS/techfile.h"
+#include "GDSGadgets/boundingrect.h"
 #include "pathitem.h"
+#include "gadgets.h"
 
 namespace CANVAS
 {
@@ -32,7 +34,8 @@ namespace CANVAS
 		: QGraphicsItem()
 	{
 		assert(data != NULL);
-		Data = data;
+		m_Data = data;
+		setFlags(ItemIsSelectable);
 	}
 	
 	PathItem::~PathItem()
@@ -40,10 +43,11 @@ namespace CANVAS
 
     QRectF PathItem::boundingRect() const
     {
-        int x1, y1, x2, y2;
-        if (Data->boundingRect(x1, y1, x2, y2))
+		int x, y;
+		int width, height;
+        if (GDS::boundingRect(m_Data, x, y, width, height))
         {
-            return QRectF(x1, y1, x2 - x1, y2 - y1);
+            return QRectF(x, y, width, height);
         } 
         else
         {
@@ -53,23 +57,40 @@ namespace CANVAS
 
     QPainterPath PathItem::shape() const
     {
-        std::vector<int> x, y;
-        Data->xy(x, y);
-        assert(x.size() >= 2 && x.size() == y.size());
-        if (x.size() < 2 || y.size() < 2)
-            return QPainterPath();
+		std::vector<int> v_x, v_y;
+		m_Data->xy(v_x, v_y);
 
-        int width = Data->width();
-        width = width < 0 ? -width : width;
-        QPainterPath path;
-        path.moveTo(x[0], y[0]);
-        for (size_t i = 1; i < x.size() && i < y.size(); i++)
-        {
-            path.lineTo(x[i], y[i]);
-        }
-        QPainterPathStroker stroker;
-        stroker.setJoinStyle(Qt::MiterJoin);
-        stroker.setWidth(width);
+		assert(v_x.size() == v_y.size());
+		if (v_x.size() != v_y.size())
+			return QPainterPath();
+		for (size_t i = 0; i < v_x.size() - 1;)
+		{
+			if (v_x[i] == v_x[i + 1] && v_y[i] == v_y[i + 1])
+			{
+				v_x.erase(v_x.begin() + i + 1);
+				v_y.erase(v_y.begin() + i + 1);
+			}
+			else
+			{
+				i++;
+			}
+		}
+		assert(v_x.size() >= 2 && v_y.size() >= 2);
+		if (v_x.size() < 2 || v_y.size() < 2)
+			return QPainterPath();
+		int path_width = m_Data->width();
+		if (path_width < 0)
+			path_width = -path_width;
+
+		QPainterPath path;
+		path.moveTo(v_x[0], v_y[0]);
+		for (size_t i = 1; i < v_x.size() && i < v_y.size(); i++)
+		{
+			path.lineTo(v_x[i], v_y[i]);
+		}
+		QPainterPathStroker stroker;
+		stroker.setJoinStyle(Qt::MiterJoin);
+		stroker.setWidth(path_width);
 
         return stroker.createStroke(path);
     }
@@ -78,46 +99,8 @@ namespace CANVAS
             const QStyleOptionGraphicsItem* option, 
             QWidget* widget)
     {
-        GDS::Techfile* techfile = GDS::Techfile::getInstance();
-        GDS::LayerNode layer;
-        bool flag = techfile->getLayer(Data->layer(), Data->dataType(), layer);
-        int r, g, b;
-        layer.color(r, g, b);
-        QColor co(r, g, b);
-
-        QPen pen(co);
-        if (option->state & QStyle::State_Selected)
-        {
-            pen.setStyle(Qt::DotLine);
-            pen.setWidth(2);
-        }
-        painter->setPen(pen);
-
-        QBrush brush;
-        std::string stipple_name = layer.stipple();
-        GDS::Stipple bits;
-        if (stipple_name != "" && techfile->getStipple(stipple_name, bits))
-        {
-            QImage img(bits.row(), bits.col(), QImage::Format_RGB888);
-            for (int i = 0; i < bits.row(); i++ )
-            {
-                for (int j = 0; j < bits.col(); j++)
-                {
-                    if (bits.bit(i, j))
-                        img.setPixel(i, j, co.rgb());
-                    else
-                        img.setPixel(i, j, Qt::white);
-                }
-            }
-            QPixmap pix = QPixmap::fromImage(img);
-            brush.setTexture(pix);
-        }
-        else
-        {
-            brush.setStyle(Qt::NoBrush);
-        }
-        painter->setBrush(brush);
-
+		initPen(painter, option, m_Data->layer(), m_Data->dataType());
+		initBrush(painter, m_Data->layer(), m_Data->dataType());
 
         painter->drawPath(shape());
     }
