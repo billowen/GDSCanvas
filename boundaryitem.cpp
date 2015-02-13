@@ -29,8 +29,8 @@
 
 namespace CANVAS
 {
-	BoundaryItem::BoundaryItem(GDS::Boundary* data)
-		: QGraphicsItem()
+	BoundaryItem::BoundaryItem(GDS::Boundary* data, QGraphicsItem* parent)
+		: QGraphicsItem(parent)
 	{
 		assert(data != nullptr);
 		m_Data = data;

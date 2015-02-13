@@ -9,12 +9,13 @@ namespace CANVAS
 {
 	class Canvas : public QGraphicsScene
 	{
-		GDS::Structure* m_Cell;
 	public:
 		Canvas(GDS::Structure *cell, QObject *parent = 0);
 		virtual ~Canvas();
 
 		void refresh();
+	private:
+		GDS::Structure* m_Cell;
 	};
 }
 

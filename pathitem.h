@@ -29,10 +29,8 @@ namespace CANVAS
 {
 	class PathItem : public QGraphicsItem
 	{
-		GDS::Path* m_Data;
-
 	public:
-		PathItem(GDS::Path* data);
+		PathItem(GDS::Path* data, QGraphicsItem* parent = 0);
 		virtual ~PathItem();
 
 		virtual QRectF boundingRect() const;
@@ -40,6 +38,8 @@ namespace CANVAS
 		virtual void paint(QPainter* painter,
 			const QStyleOptionGraphicsItem* option,
 			QWidget* widget = 0);
+	private:
+		GDS::Path* m_Data;
 	};
 }
 

@@ -30,8 +30,8 @@
 
 namespace CANVAS
 {
-	PathItem::PathItem(GDS::Path* data)
-		: QGraphicsItem()
+	PathItem::PathItem(GDS::Path* data, QGraphicsItem* parent)
+		: QGraphicsItem(parent)
 	{
 		assert(data != NULL);
 		m_Data = data;

@@ -12,12 +12,14 @@ set (headers
     canvas.h
     boundaryitem.h 
     pathitem.h 
+    srefitem.h
     gadgets.h
     )
 set (src 
     canvas.cpp
     boundaryitem.cpp
     pathitem.cpp
+    srefitem.cpp
     gadgets.cpp
     )
 
