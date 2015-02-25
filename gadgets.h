@@ -20,6 +20,11 @@
 **/
 #ifndef CANVASGADGETS_H
 #define CANVASGADGETS_H
+#include "GDS/boundary.h"
+#include "GDS/path.h"
+#include "GDS/sref.h"
+#include "GDS/aref.h"
+#include "GDS/structures.h"
 
 class QPainter;
 class QStyleOptionGraphicsItem;
@@ -33,6 +38,34 @@ namespace CANVAS
 
 	void initBrush(QPainter* painter,
 		int num, int data_type);
+
+	void paintBoundary(QPainter* painter,
+		const QStyleOptionGraphicsItem* option,
+		GDS::Boundary* data,
+		int offset_x = 0, int offset_y = 0);
+
+	void paintPath(QPainter* painter,
+		const QStyleOptionGraphicsItem* option,
+		GDS::Path* data,
+		int offset_x = 0, int offset_y = 0);
+
+	void paintSRef(QPainter* painter,
+		const QStyleOptionGraphicsItem* option,
+		GDS::SRef* data,
+		int offset_x = 0, int offset_y = 0,
+		int level = 99);
+
+	void paintARef(QPainter* painter,
+		const QStyleOptionGraphicsItem* option,
+		GDS::ARef* data,
+		int offset_x = 0, int offset_y = 0,
+		int level = 99);
+
+	void paintStructure(QPainter* painter,
+		const QStyleOptionGraphicsItem* option,
+		GDS::Structure* data,
+		int offset_x = 0, int offset_y = 0,
+		int level = 99);
 }
 
 #endif // !CANVASGADGETS_H

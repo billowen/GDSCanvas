@@ -72,10 +72,10 @@ namespace CANVAS
 			int mag = m_Data->mag();
 			int angle = m_Data->angle();
 			QTransform transform;
-			transform.translate(x + width / 2.0, y + height / 2.0);
+			transform.translate(x, y);
 			transform.scale(mag, mag);
 			transform.rotate(angle);
-			transform.translate(-(x + width / 2.0), -(y + height / 2.0));
+			transform.translate(-x, -y);
 			transform.translate(offset_x, offset_y);
 			QRect rect2 = transform.mapRect(rect);
 			QPainterPath path;
@@ -104,12 +104,12 @@ namespace CANVAS
 		int mag = m_Data->mag();
 		int angle = m_Data->angle();
 		QTransform transform;
-		transform.translate(x + width / 2.0, y + height / 2.0);
+		transform.translate(x, y);
 		if (reflect)
 			transform.scale(-1, 1);
 		transform.scale(mag, mag);
 		transform.rotate(angle);
-		transform.translate(-(x + width / 2.0), -(y + height / 2.0));
+		transform.translate(-x, -y);
 		transform.translate(offset_x, offset_y);
 		painter->setTransform(transform);
 
