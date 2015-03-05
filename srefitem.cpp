@@ -28,6 +28,7 @@
 #include "GDS/structures.h"
 #include "pathitem.h"
 #include "boundaryitem.h"
+#include "gadgets.h"
 #include "srefitem.h"
 
 namespace CANVAS
@@ -90,73 +91,7 @@ namespace CANVAS
 		const QStyleOptionGraphicsItem* option,
 		QWidget* widget)
 	{
-		std::string sname = m_Data->structName();
-		GDS::Structure* reference = GDS::Library::getInstance()->get(sname);
-		if (reference == nullptr)
-			return;
-		int x, y, width, height;
-		if (!GDS::boundingRect(reference, x, y, width, height))
-			return;
-
-		int offset_x, offset_y;
-		m_Data->xy(offset_x, offset_y);
-		bool reflect = m_Data->stransFlag(GDS::REFLECTION);
-		int mag = m_Data->mag();
-		int angle = m_Data->angle();
-		QTransform transform;
-		transform.translate(x, y);
-		if (reflect)
-			transform.scale(-1, 1);
-		transform.scale(mag, mag);
-		transform.rotate(angle);
-		transform.translate(-x, -y);
-		transform.translate(offset_x, offset_y);
-		painter->setTransform(transform);
-
-		if (m_ViewLevel <= 0)
-		{
-			QRect rect(x, y, width, height);
-			painter->drawRect(rect);
-			painter->drawText(rect, Qt::AlignCenter, QString(sname.c_str()));
-		}
-		else
-		{
-			for (size_t i = 0; i < reference->size(); i++)
-			{
-				GDS::Element* tmp = reference->get(i);
-				if (tmp == nullptr)
-					continue;
-				switch (tmp->tag())
-				{
-				case GDS::BOUNDARY:
-					if (GDS::Boundary* node = dynamic_cast<GDS::Boundary*>(tmp))
-					{
-						BoundaryItem item(node);
-						item.paint(painter, option, widget);
-					}
-					break;
-				case GDS::PATH:
-					if (GDS::Path* node = dynamic_cast<GDS::Path*>(tmp))
-					{
-						PathItem item(node);
-						item.paint(painter, option, widget);
-					}
-					break;
-				case GDS::SREF:
-					if (GDS::SRef* node = dynamic_cast<GDS::SRef*>(tmp))
-					{
-						SRefItem item(node);
-						item.setViewLevel(m_ViewLevel - 1);
-						item.paint(painter, option, widget);
-					}
-					break;
-				default:
-					break;
-				}
-			}
-		}
-
-		
+		paintSRef(painter, option, m_Data, m_ViewLevel);
 	}
 
 	int SRefItem::viewLevel() const

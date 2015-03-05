@@ -28,6 +28,7 @@
 #include "GDS/boundary.h"
 #include "GDS/path.h"
 #include "GDSGadgets/boundingrect.h"
+#include "gadgets.h"
 #include "arefitem.h"
 
 namespace CANVAS
@@ -84,41 +85,7 @@ namespace CANVAS
 		const QStyleOptionGraphicsItem* option,
 		QWidget* widget)
 	{
-		std::string sname = m_Data->structName();
-		GDS::Structure* reference = GDS::Library::getInstance()->get(sname);
-		if (reference == nullptr)
-			return;
-
-		std::vector<int> v_x, v_y;
-		m_Data->xy(v_x, v_y);
-		assert(v_x.size() == 3 && v_y.size() == 3);
-		if (v_x.size() != 3 || v_y.size() != 3)
-			return;
-
-		bool reflect = m_Data->stransFlag(GDS::REFLECTION);
-		int mag = m_Data->mag();
-		int angle = m_Data->angle();
-		QTransform transform;
-		transform.translate(v_x[0], v_y[0]);
-		if (reflect)
-			transform.scale(-1, 1);
-		transform.scale(mag, mag);
-		transform.rotate(angle);
-		transform.translate(-v_x[0], -v_y[0]);
-		painter->setTransform(transform);
-
-		if (m_ViewLevel <= 0)
-		{
-			int dis_x = calDist(v_x[0], v_y[0], v_x[1], v_y[1]);
-			int dis_y = calDist(v_x[0], v_y[0], v_x[2], v_y[2]);
-			QRect rect(v_x[0], v_y[0], dis_x, dis_y);
-			painter->drawRect(rect);
-			painter->drawText(rect, Qt::AlignCenter, QString(sname.c_str()));
-		}
-		else
-		{
-
-		}
+		paintARef(painter, option, m_Data, m_ViewLevel);
 	}
 
 	int ARefItem::viewLevel() const

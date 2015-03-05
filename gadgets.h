@@ -41,31 +41,28 @@ namespace CANVAS
 
 	void paintBoundary(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
-		GDS::Boundary* data,
-		int offset_x = 0, int offset_y = 0);
+		GDS::Boundary* data);
 
 	void paintPath(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
-		GDS::Path* data,
-		int offset_x = 0, int offset_y = 0);
+		GDS::Path* data);
 
 	void paintSRef(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
 		GDS::SRef* data,
-		int offset_x = 0, int offset_y = 0,
 		int level = 99);
 
 	void paintARef(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
 		GDS::ARef* data,
-		int offset_x = 0, int offset_y = 0,
 		int level = 99);
 
 	void paintStructure(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
 		GDS::Structure* data,
+		int level = 99,
 		int offset_x = 0, int offset_y = 0,
-		int level = 99);
+		bool reflect = false, double mag = 1, double angle = 0);
 }
 
 #endif // !CANVASGADGETS_H

@@ -92,8 +92,7 @@ namespace CANVAS
 
 	void paintBoundary(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
-		GDS::Boundary* data,
-		int offset_x, int offset_y)
+		GDS::Boundary* data)
 	{
 		assert(data != nullptr);
 		if (data == nullptr)
@@ -109,14 +108,12 @@ namespace CANVAS
 		{
 			polygon << QPoint(v_x[i], v_y[i]);
 		}
-		QPolygon p = QTransform().translate(offset_x, offset_y).map(polygon);
-		painter->drawPolygon(p);
+		painter->drawPolygon(polygon);
 	}
 
 	void paintPath(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
-		GDS::Path* data,
-		int offset_x, int offset_y)
+		GDS::Path* data)
 	{
 		assert(data != nullptr);
 		if (data == nullptr)
@@ -126,19 +123,32 @@ namespace CANVAS
 		initBrush(painter, data->layer(), data->dataType());
 
 		PathItem item(data);
-		QPainterPath path = QTransform().translate(offset_x, offset_y).map(item.shape());
-		painter->drawPath(path);
+		painter->drawPath(item.shape());
 	}
 
 	void paintStructure(QPainter* painter,
 		const QStyleOptionGraphicsItem* option,
 		GDS::Structure* data,
+		int level,
 		int offset_x, int offset_y,
-		int level)
+		bool reflect, double mag, double angle)
 	{
 		assert(data != nullptr);
 		if (data == nullptr)
 			return;
+
+		int x, y, width, height;
+		if (!GDS::boundingRect(data, x, y, width, height))
+			return;
+
+		QTransform transform_back = painter->transform();
+		QTransform transform;
+		if (reflect)
+			transform.scale(1, -1);
+		transform.scale(mag, mag);
+		transform.rotate(angle);
+		transform.translate(offset_x, offset_y);
+		painter->setTransform(transform, true);
 
 		if (level <= 0)
 		{
@@ -151,9 +161,6 @@ namespace CANVAS
 			}
 			painter->setPen(pen);
 
-			int x, y, width, height;
-			if (!GDS::boundingRect(data, x, y, width, height))
-				return;
 			std::string sname = data->name();
 			QRect rect(x, y, width, height);
 			painter->drawRect(rect);
@@ -171,25 +178,25 @@ namespace CANVAS
 				case GDS::BOUNDARY:
 					if (GDS::Boundary* node = dynamic_cast<GDS::Boundary*>(tmp))
 					{
-						paintBoundary(painter, option, node, offset_x, offset_y);
+						paintBoundary(painter, option, node);
 					}
 					break;
 				case GDS::PATH:
 					if (GDS::Path* node = dynamic_cast<GDS::Path*>(tmp))
 					{
-						paintPath(painter, option, node, offset_x, offset_y);
+						paintPath(painter, option, node);
 					}
 					break;
 				case GDS::SREF:
 					if (GDS::SRef* node = dynamic_cast<GDS::SRef*>(tmp))
 					{
-						paintSRef(painter, option, node, offset_x, offset_y, level - 1);
+						paintSRef(painter, option, node, level - 1);
 					}
 					break;
 				case GDS::AREF:
 					if (GDS::ARef* node = dynamic_cast<GDS::ARef*>(tmp))
 					{
-						paintARef(painter, option, node, offset_x, offset_y, level - 1);
+						paintARef(painter, option, node, level - 1);
 					}
 					break;
 				default:
@@ -197,6 +204,7 @@ namespace CANVAS
 				}
 			}
 		}
+		painter->setTransform(transform_back);
 	}
 
 	void paintSRef(QPainter* painter,
@@ -218,27 +226,85 @@ namespace CANVAS
 			return;
 
 		bool reflect = data->stransFlag(GDS::REFLECTION);
-		int mag = data->mag();
-		int angle = data->angle();
-
-		QTransform transform_back = painter->transform();
-
-		QTransform transform;
-		transform.translate(r_x + r_width / 2.0, r_y + r_height / 2.0);
-		if (reflect)
-			transform.scale(-1, 1);
-		transform.translate(-(r_x + r_width / 2.0), -(r_y + r_height / 2.0));
-		transform.translate(r_x, r_y);
-		transform.scale(mag, mag);
-		transform.rotate(angle);
-		transform.translate(-r_x, -r_y);
-		transform.translate(offset_x, offset_y);
-		painter->setTransform(transform, true);
-
+		double mag = data->mag();
+		double angle = data->angle();
 		int s_x, s_y;
 		data->xy(s_x, s_y);
-		paintStructure(painter, option, reference, s_x, s_y, level);
 
-		painter->setTransform(transform_back);
+		
+		paintStructure(painter, option, reference, 
+			level, s_x, s_y, reflect, mag, angle);
+	}
+
+	void paintARef(QPainter* painter,
+		const QStyleOptionGraphicsItem* option,
+		GDS::ARef* data,
+		int offset_x, int offset_y,
+		int level)
+	{
+		assert(data != nullptr);
+		if (data == nullptr)
+			return;
+
+		std::string sname = data->structName();
+		GDS::Structure* reference = GDS::Library::getInstance()->get(sname);
+		if (reference == nullptr)
+			return;
+		int r_x, r_y, r_width, r_height;
+		if (!GDS::boundingRect(reference, r_x, r_y, r_width, r_height))
+			return;
+
+		std::vector<int> x, y;
+		data->xy(x, y);
+		assert(x.size() >= 3 && y.size() >= 3);
+		if (x.size() < 3 || y.size() < 3)
+			return;
+		int col = data->col();
+		int row = data->row();
+		assert(col > 0 && row > 0);
+		if (col <= 0 || row <= 0)
+			return;
+		double angle = data->angle();
+		double mag = data->mag();
+		bool reflect = data->stransFlag(GDS::REFLECTION);
+
+		if (level <= 0)
+		{
+			QColor co(Qt::blue);
+			QPen pen(co);
+			if (option->state & QStyle::State_Selected)
+			{
+				pen.setStyle(Qt::DotLine);
+				pen.setWidth(2);
+			}
+			painter->setPen(pen);
+			int aref_width = sqrt(pow(x[1] - x[0], 2) + pow(y[1] - y[0], 2));
+			int aref_height = sqrt(pow(x[2] - x[0], 2) + pow(y[2] - y[0], 2));
+			QRect rect = QTransform().rotate(angle).mapRect(QRect(0, 0, r_width, r_height));
+			painter->drawRect(rect);
+			painter->drawText(rect, Qt::AlignCenter, QString(sname.c_str()));
+		}
+		else
+		{
+			int row_spacing_x = (x[2] - x[0]) / row;
+			int row_spacing_y = (y[2] - y[0]) / row;
+			int col_spacing_x = (x[1] - x[0]) / col;
+			int col_spacing_y = (y[1] - y[0]) / col;
+
+			int offset_x = x[0];
+			int offset_y = y[0];
+			for (int i = 0; i < row; i++)
+			{
+				offset_x = x[0] + row_spacing_x * i;
+				offset_y = y[0] + row_spacing_y * i;
+				for (int j = 0; j < col; j++)
+				{
+					paintStructure(painter, option, reference,
+						level, offset_x, offset_y, reflect, mag, angle);
+					offset_x += col_spacing_x;
+					offset_y += col_spacing_y;
+				}
+			}
+		}
 	}
 }

@@ -74,9 +74,6 @@ namespace CANVAS
 		const QStyleOptionGraphicsItem* option,
 		QWidget* widget)
 	{
-		initPen(painter, option, m_Data->layer(), m_Data->dataType());
-		initBrush(painter, m_Data->layer(), m_Data->dataType());
-		
-		painter->drawRect(boundingRect());
+		paintBoundary(painter, option, m_Data);
 	}
 }
